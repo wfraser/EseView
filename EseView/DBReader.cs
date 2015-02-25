@@ -170,7 +170,6 @@ namespace EseView
             }
         }
 
-        // TODO: allow there to be row number bounds on this, and use a virtualizing grid to do it right.
         public IEnumerable<List<object>> GetRows(string tableName, int startRow = 0, int rowCount = -1)
         {
             if (!m_tableDefs.ContainsKey(tableName))

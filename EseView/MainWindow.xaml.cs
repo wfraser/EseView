@@ -96,7 +96,14 @@ namespace EseView
 
         private void About_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("EseView by Bill Fraser <wfraser@microsoft.com>", "About EseView", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(
+                  "EseView by Bill Fraser <wfraser@microsoft.com>\n"
+                + "\n"
+                + "Note: this is not a Microsoft product;\n"
+                + "         this is supported in my own free time.\n"
+                + "\n"
+                + "http://github.com/wfraser/EseView",
+                "About EseView", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }
