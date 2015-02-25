@@ -30,10 +30,15 @@ namespace EseView
             Esent.JetGetDatabaseFileInfo(filename, out pageSize, JET_DbInfo.PageSize);
 
             string dir = System.IO.Path.GetDirectoryName(filename) + "\\";
-
             Esent.JetSetSystemParameter(JET_INSTANCE.Nil, JET_SESID.Nil, JET_param.DatabasePageSize, pageSize, null);
             Esent.JetSetSystemParameter(JET_INSTANCE.Nil, JET_SESID.Nil, JET_param.LogFilePath, 0, dir);
             Esent.JetSetSystemParameter(JET_INSTANCE.Nil, JET_SESID.Nil, JET_param.SystemPath, 0, dir);
+
+            // Put the temp DB in our working directory.
+            Esent.JetSetSystemParameter(JET_INSTANCE.Nil, JET_SESID.Nil, JET_param.TempPath, 0, System.IO.Directory.GetCurrentDirectory() + "\\");
+
+            // Recovery is disabled so that we don't touch the database's log files.
+            Esent.JetSetSystemParameter(JET_INSTANCE.Nil, JET_SESID.Nil, JET_param.Recovery, 0, null); // reco
 
             m_jetInstance = new Instance("ESEVIEW");
             m_jetInstance.Init();
