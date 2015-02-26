@@ -26,6 +26,7 @@
                     <ComboBoxItem IsSelected="True" FontWeight="Bold" x:Name="NoIndex">(primary key)</ComboBoxItem>
                 </ComboBox>
                 <Button Click="SetIndex_Click">Set</Button>
+                <ToggleButton Click="IndexInfo_Click" x:Name="IndexInfoToggle">View Index Info</ToggleButton>
             </ToolBar>
         </ToolBarTray>
         <ListView Grid.Row="1" x:Name="TableList"

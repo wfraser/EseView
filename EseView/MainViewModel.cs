@@ -72,10 +72,7 @@ namespace EseView
             {
                 return null;
             }
-            else
-            {
-                return m_db.GetColumnNamesAndTypes(tableName);
-            }
+            return m_db.GetColumnNamesAndTypes(tableName);
         }
 
         public IEnumerable<string> GetIndexes(string tableName)
@@ -86,6 +83,24 @@ namespace EseView
             }
 
             return m_indexes[tableName];
+        }
+
+        public IEnumerable<DBRow> GetIndexInfo(string tableName, string indexName)
+        {
+            if (m_db == null)
+            {
+                return null;
+            }
+            return m_db.GetIndexInfo(tableName, indexName);
+        }
+
+        public IEnumerable<KeyValuePair<string, Type>> GetIndexColumnNamesAndTypes(string tableName, string indexName)
+        {
+            if (m_db == null)
+            {
+                return null;
+            }
+            return m_db.GetIndexColumnNamesAndTypes(tableName, indexName);
         }
 
         private DBReader m_db;

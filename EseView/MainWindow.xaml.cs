@@ -53,6 +53,21 @@ namespace EseView
 
         void TableList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            IndexInfoToggle.IsChecked = false;
+
+            string tableName = TableList.SelectedItem as string;
+            m_selectedTable = tableName;
+            m_selectedIndex = null;
+
+            UpdateIndexList();
+
+            UpdateColumnDefinitions(m_viewModel.GetColumnNamesAndTypes(tableName));
+            RowData.DataContext = m_viewModel.VirtualRows(tableName, m_selectedIndex);
+            UpdateStatusText(tableName);
+        }
+
+        void UpdateColumnDefinitions(IEnumerable<KeyValuePair<string, Type>> columnNamesAndTypes)
+        {
             if (TableList.SelectedIndex == -1)
             {
                 RowGrid.Columns.Clear();
@@ -60,12 +75,9 @@ namespace EseView
                 return;
             }
 
-            string tableName = TableList.SelectedItem as string;
-            m_selectedTable = tableName;
-
             RowGrid.Columns.Clear();
 
-            foreach (KeyValuePair<string, Type> colspec in m_viewModel.GetColumnNamesAndTypes(tableName))
+            foreach (KeyValuePair<string, Type> colspec in columnNamesAndTypes)
             {
                 var cellBinding = new Binding();
                 cellBinding.Converter = new DBRowValueConverter();
@@ -86,11 +98,6 @@ namespace EseView
 
                 RowGrid.Columns.Add(gridColumn2);
             }
-
-            UpdateIndexList();
-
-            RowData.DataContext = m_viewModel.VirtualRows(tableName, m_selectedIndex);
-            UpdateStatusText(tableName);
         }
 
         private void Open_Click(object sender, RoutedEventArgs e)
@@ -112,6 +119,7 @@ namespace EseView
 
             m_selectedTable = null;
             m_selectedIndex = null;
+            IndexInfoToggle.IsChecked = false;
 
             UpdateIndexList();
         }
@@ -160,7 +168,33 @@ namespace EseView
                 m_selectedIndex = selected.Content as string;
             }
 
-            RowData.DataContext = m_viewModel.VirtualRows(m_selectedTable, m_selectedIndex);
+            if (!IndexInfoToggle.IsChecked.GetValueOrDefault(false))
+            {
+                RowData.DataContext = m_viewModel.VirtualRows(m_selectedTable, m_selectedIndex);
+            }
+            else
+            {
+                ShowIndexInfo();
+            }
+        }
+
+        private void IndexInfo_Click(object sender, RoutedEventArgs e)
+        {
+            if (IndexInfoToggle.IsChecked.GetValueOrDefault(false))
+            {
+                ShowIndexInfo();
+            }
+            else
+            {
+                UpdateColumnDefinitions(m_viewModel.GetColumnNamesAndTypes(m_selectedTable));
+                RowData.DataContext = m_viewModel.VirtualRows(m_selectedTable, m_selectedIndex);
+            }
+        }
+
+        void ShowIndexInfo()
+        {
+            UpdateColumnDefinitions(m_viewModel.GetIndexColumnNamesAndTypes(m_selectedTable, m_selectedIndex));
+            RowData.DataContext = m_viewModel.GetIndexInfo(m_selectedTable, m_selectedIndex);
         }
     }
 }
