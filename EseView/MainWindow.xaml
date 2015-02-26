@@ -15,20 +15,34 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ToolBarTray Grid.ColumnSpan="3">
-            <ToolBar>
-                <Button Click="Open_Click">Open</Button>
-                <Button Click="About_Click">About</Button>
-            </ToolBar>
-            <ToolBar>
-                <Label>Index: </Label>
-                <ComboBox x:Name="IndexSelector" Padding="10,0,10,0">
-                    <ComboBoxItem IsSelected="True" FontWeight="Bold" x:Name="NoIndex">(primary key)</ComboBoxItem>
-                </ComboBox>
-                <Button Click="SetIndex_Click">Set</Button>
-                <ToggleButton Click="IndexInfo_Click" x:Name="IndexInfoToggle">View Index Info</ToggleButton>
-            </ToolBar>
-        </ToolBarTray>
+        <StackPanel Grid.ColumnSpan="3" Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="2"/>
+                    <Setter Property="Padding" Value="5,0,5,0"/>
+                </Style>
+                <Style TargetType="ToggleButton">
+                    <Setter Property="Margin" Value="2"/>
+                    <Setter Property="Padding" Value="5,0,5,0"/>
+                </Style>
+                <Style TargetType="ComboBox">
+                    <Setter Property="Margin" Value="2"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="Padding" Value="10,0,10,0"/>
+                </Style>
+            </StackPanel.Resources>
+            <Button Click="Open_Click">Open</Button>
+            <Button Click="About_Click">About</Button>
+            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+            <Label>Index: </Label>
+            <ComboBox x:Name="IndexSelector">
+                <ComboBoxItem IsSelected="True" FontWeight="Bold" x:Name="NoIndex">(primary key)</ComboBoxItem>
+            </ComboBox>
+            <Button Click="SetIndex_Click">Set</Button>
+            <ToggleButton Click="IndexInfo_Click" x:Name="IndexInfoToggle">View Index Info</ToggleButton>
+        </StackPanel>
         <ListView Grid.Row="1" x:Name="TableList"
                   ItemsSource="{Binding}" />
         <GridSplitter Grid.Row="1" Grid.Column="1"
