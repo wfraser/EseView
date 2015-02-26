@@ -250,21 +250,21 @@ namespace EseView
             var tableDef = new List<ColSpec> {
                 new ColSpec
                 {
-                    Name = "Column",
+                    Name = "Columns",
                     Fetch = (s, t, c) => Esent.RetrieveColumnAsInt32(s, t, c),
                     Type = typeof(Int32?),
                     ColumnId = indexList.columnidcColumn
                 },
                 new ColSpec
                 {
-                    Name = "Entry",
+                    Name = "Entries",
                     Fetch = (s,t,c) => Esent.RetrieveColumnAsInt32(s,t,c),
                     Type = typeof(Int32?),
                     ColumnId = indexList.columnidcEntry
                 },
                 new ColSpec
                 {
-                    Name = "Key",
+                    Name = "UniqueKeys",
                     Fetch = (s,t,c) => Esent.RetrieveColumnAsInt32(s,t,c),
                     Type = typeof(Int32?),
                     ColumnId = indexList.columnidcKey
@@ -288,26 +288,26 @@ namespace EseView
                     ColumnId = indexList.columnidcolumnname
                 },
                 new ColSpec {
-                    Name = "Cp",
+                    Name = "CodePage",
                     Fetch = (s,t,c) => Esent.RetrieveColumnAsInt16(s,t,c),
                     Type = typeof(Int16?),
                     ColumnId = indexList.columnidCp
                 },
                 new ColSpec {
-                    Name = "cPage",
+                    Name = "NumPages",
                     Fetch = (s,t,c) => Esent.RetrieveColumnAsInt32(s,t,c),
                     Type = typeof(Int32?),
                     ColumnId = indexList.columnidcPage
                 },
                 new ColSpec {
                     Name = "grbitColumn",
-                    Fetch = (s,t,c) => Esent.RetrieveColumnAsInt32(s,t,c),
+                    Fetch = (s,t,c) => Esent.RetrieveColumnAsInt32(s,t,c),  // TODO: It would be cool to get the enum value names here
                     Type = typeof(Int32?),
                     ColumnId = indexList.columnidgrbitColumn
                 },
                 new ColSpec {
                     Name = "grbitIndex",
-                    Fetch = (s,t,c) => Esent.RetrieveColumnAsInt32(s,t,c),
+                    Fetch = (s,t,c) => Esent.RetrieveColumnAsInt32(s,t,c),  // TODO: It would be cool to get the enum value names here
                     Type = typeof(Int32?),
                     ColumnId = indexList.columnidgrbitIndex
                 },
