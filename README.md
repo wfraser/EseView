@@ -12,11 +12,12 @@ Implemented Features
 --------------------
 * Basic functionality! :)
 * Data virtualized display, so even opening a massive database is quite snappy.
+* Browsing by indexes
+* Viewing index specifications
 
 Planned Features
 ----------------
-* Browsing by indexes
-* Viewing column and index specifications
+* Viewing column specifications
 * Searching for values
 
 This program is not supported or endorsed by Microsoft Corporation in any way.
