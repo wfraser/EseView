@@ -175,7 +175,7 @@ namespace EseView
             }
         }
 
-        public IEnumerable<List<object>> GetRows(string tableName, int startRow = 0, int rowCount = -1)
+        public IEnumerable<List<object>> GetRows(string tableName, string indexName = null, int startRow = 0, int rowCount = -1)
         {
             if (!m_tableDefs.ContainsKey(tableName))
                 LoadTableDef(tableName);
@@ -187,7 +187,7 @@ namespace EseView
 
                 try
                 {
-                    Esent.JetMove(m_sesid, table, JET_Move.First, MoveGrbit.None);
+                    Esent.JetSetCurrentIndex2(m_sesid, table, indexName, SetCurrentIndexGrbit.MoveFirst);
 
                     if (startRow != 0)
                     {
@@ -224,5 +224,13 @@ namespace EseView
                 while (Esent.TryMoveNext(m_sesid, table));
             }
         } // GetRows
+
+        public IEnumerable<string> GetIndexes(string tableName)
+        {
+            foreach (IndexInfo info in Esent.GetTableIndexes(m_sesid, m_dbid, tableName))
+            {
+                yield return info.Name;
+            }
+        }
     }
 }

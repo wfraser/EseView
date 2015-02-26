@@ -9,6 +9,7 @@ namespace EseView
         {
             m_db = null;
             m_tables = new Lazy<List<string>>();
+            m_indexes = new Dictionary<string, List<string>>();
         }
 
         public MainViewModel(string filename)
@@ -32,7 +33,7 @@ namespace EseView
             get { return m_tables.Value; }
         }
 
-        public IEnumerable<DBRow> Rows(string tableName)
+        public IEnumerable<DBRow> Rows(string tableName, string indexName)
         {
             if (m_db == null)
             {
@@ -48,16 +49,16 @@ namespace EseView
                     columnIndexByName.Add(col.Key, i);
                 }
 
-                foreach (List<object> row in m_db.GetRows(tableName))
+                foreach (List<object> row in m_db.GetRows(tableName, indexName))
                 {
                     yield return new DBRow(columnIndexByName, row);
                 }
             }
         }
 
-        public VirtualizedReadOnlyList<DBRow> VirtualRows(string tableName)
+        public VirtualizedReadOnlyList<DBRow> VirtualRows(string tableName, string indexName)
         {
-            return new VirtualizedReadOnlyList<DBRow>(new DatabaseVirtualizedProvider(m_db, tableName));
+            return new VirtualizedReadOnlyList<DBRow>(new DatabaseVirtualizedProvider(m_db, tableName, indexName));
         }
 
         public int GetRowCount(string tableName)
@@ -77,7 +78,18 @@ namespace EseView
             }
         }
 
+        public IEnumerable<string> GetIndexes(string tableName)
+        {
+            if (!m_indexes.ContainsKey(tableName))
+            {
+                m_indexes.Add(tableName, new List<string>(m_db.GetIndexes(tableName)));
+            }
+
+            return m_indexes[tableName];
+        }
+
         private DBReader m_db;
         private Lazy<List<string>> m_tables;
+        private Dictionary<string, List<string>> m_indexes;
     }
 }

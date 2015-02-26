@@ -15,10 +15,19 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ToolBar Grid.ColumnSpan="3">
-            <Button Click="Open_Click">Open</Button>
-            <Button Click="About_Click">About</Button>
-        </ToolBar>
+        <ToolBarTray Grid.ColumnSpan="3">
+            <ToolBar>
+                <Button Click="Open_Click">Open</Button>
+                <Button Click="About_Click">About</Button>
+            </ToolBar>
+            <ToolBar>
+                <Label>Index: </Label>
+                <ComboBox x:Name="IndexSelector" Padding="10,0,10,0">
+                    <ComboBoxItem IsSelected="True" FontWeight="Bold" x:Name="NoIndex">(primary key)</ComboBoxItem>
+                </ComboBox>
+                <Button Click="SetIndex_Click">Set</Button>
+            </ToolBar>
+        </ToolBarTray>
         <ListView Grid.Row="1" x:Name="TableList"
                   ItemsSource="{Binding}" />
         <GridSplitter Grid.Row="1" Grid.Column="1"

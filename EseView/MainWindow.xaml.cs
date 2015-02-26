@@ -17,9 +17,14 @@ namespace EseView
     {
         private MainViewModel m_viewModel;
         private string m_filename;
+        private string m_selectedIndex;
+        private string m_selectedTable;
 
         public MainWindow()
         {
+            m_selectedTable = null;
+            m_selectedIndex = null;
+
             m_viewModel = new MainViewModel();
             InitializeComponent();
 
@@ -27,6 +32,23 @@ namespace EseView
             TableList.SelectionChanged += TableList_SelectionChanged;
 
             StatusText.Text = "No database loaded.";
+        }
+
+        void UpdateIndexList()
+        {
+            IndexSelector.Items.Clear();
+            NoIndex.FontWeight = FontWeights.Bold;
+            IndexSelector.Items.Add(NoIndex);
+            if (m_selectedTable != null)
+            {
+                foreach (string indexName in m_viewModel.GetIndexes(m_selectedTable))
+                {
+                    var item = new ComboBoxItem();
+                    item.Content = indexName;
+                    IndexSelector.Items.Add(item);
+                }
+            }
+            IndexSelector.SelectedItem = NoIndex;
         }
 
         void TableList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -39,6 +61,7 @@ namespace EseView
             }
 
             string tableName = TableList.SelectedItem as string;
+            m_selectedTable = tableName;
 
             RowGrid.Columns.Clear();
 
@@ -59,10 +82,14 @@ namespace EseView
                 gridColumn2.Header = colspec.Key;
                 gridColumn2.CellTemplate = template;
 
+                // TODO: bold the column header if it's part of the current index
+
                 RowGrid.Columns.Add(gridColumn2);
             }
 
-            RowData.DataContext = m_viewModel.VirtualRows(tableName);
+            UpdateIndexList();
+
+            RowData.DataContext = m_viewModel.VirtualRows(tableName, m_selectedIndex);
             UpdateStatusText(tableName);
         }
 
@@ -82,6 +109,11 @@ namespace EseView
 
             Title = "EseView: " + m_filename;
             UpdateStatusText(null);
+
+            m_selectedTable = null;
+            m_selectedIndex = null;
+
+            UpdateIndexList();
         }
 
         private void UpdateStatusText(string tableName)
@@ -104,6 +136,31 @@ namespace EseView
                 + "\n"
                 + "http://github.com/wfraser/EseView",
                 "About EseView", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void SetIndex_Click(object sender, RoutedEventArgs e)
+        {
+            if (m_selectedTable == null)
+                return;
+
+            foreach (var item in IndexSelector.Items.OfType<ComboBoxItem>())
+            {
+                item.FontWeight = FontWeights.Regular;
+            }
+
+            var selected = IndexSelector.SelectedItem as ComboBoxItem;
+            selected.FontWeight = FontWeights.Bold;
+
+            if (selected == NoIndex)
+            {
+                m_selectedIndex = null;
+            }
+            else
+            {
+                m_selectedIndex = selected.Content as string;
+            }
+
+            RowData.DataContext = m_viewModel.VirtualRows(m_selectedTable, m_selectedIndex);
         }
     }
 }

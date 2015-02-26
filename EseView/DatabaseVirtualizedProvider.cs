@@ -5,10 +5,11 @@ namespace EseView
 {
     public class DatabaseVirtualizedProvider : IVirtualizedProvider<DBRow>
     {
-        public DatabaseVirtualizedProvider(DBReader db, string tableName)
+        public DatabaseVirtualizedProvider(DBReader db, string tableName, string indexName)
         {
             m_db = db;
             m_tableName = tableName;
+            m_indexName = indexName;
             m_count = new Lazy<int>(() => db.GetRowCount(tableName));
 
             m_columnIndexByName = new Dictionary<string, int>();
@@ -28,7 +29,7 @@ namespace EseView
 
         public IEnumerable<DBRow> FetchRange(int startIndex, int count)
         {
-            foreach (List<object> row in m_db.GetRows(m_tableName, startIndex, count))
+            foreach (List<object> row in m_db.GetRows(m_tableName, m_indexName, startIndex, count))
             {
                 yield return new DBRow(m_columnIndexByName, row);
             }
@@ -36,6 +37,7 @@ namespace EseView
 
         private DBReader m_db;
         private string m_tableName;
+        private string m_indexName;
         private Lazy<int> m_count;
         private Dictionary<string, int> m_columnIndexByName;
     }
