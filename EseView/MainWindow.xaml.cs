@@ -180,6 +180,12 @@ namespace EseView
 
         private void IndexInfo_Click(object sender, RoutedEventArgs e)
         {
+            if (m_selectedTable == null)
+            {
+                IndexInfoToggle.IsChecked = false;
+                return;
+            }
+
             if (IndexInfoToggle.IsChecked.GetValueOrDefault(false))
             {
                 ShowIndexInfo();
