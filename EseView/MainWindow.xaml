@@ -5,68 +5,85 @@
         Title="EseView" Height="350" Width="525"
         x:Name="MainFrame">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <StackPanel Grid.ColumnSpan="3" Orientation="Horizontal">
-            <StackPanel.Resources>
-                <Style TargetType="Button">
-                    <Setter Property="Margin" Value="2"/>
-                    <Setter Property="Padding" Value="5,0,5,0"/>
-                </Style>
-                <Style TargetType="ToggleButton">
-                    <Setter Property="Margin" Value="2"/>
-                    <Setter Property="Padding" Value="5,0,5,0"/>
-                </Style>
-                <Style TargetType="ComboBox">
-                    <Setter Property="Margin" Value="2"/>
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                </Style>
-                <Style TargetType="ComboBoxItem">
-                    <Setter Property="Padding" Value="10,0,10,0"/>
-                </Style>
-            </StackPanel.Resources>
-            <Button Click="Open_Click">Open</Button>
-            <Button Click="About_Click">About</Button>
-            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-            <Label>Index: </Label>
-            <ComboBox x:Name="IndexSelector">
-                <ComboBoxItem IsSelected="True" FontWeight="Bold" x:Name="NoIndex">(primary key)</ComboBoxItem>
-            </ComboBox>
-            <Button Click="SetIndex_Click">Set</Button>
-            <ToggleButton Click="IndexInfo_Click" x:Name="IndexInfoToggle">View Index Info</ToggleButton>
-        </StackPanel>
-        <ListView Grid.Row="1" x:Name="TableList"
-                  ItemsSource="{Binding}" />
-        <GridSplitter Grid.Row="1" Grid.Column="1"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Stretch"
-                      ShowsPreview="True"
-                      Width="5" />
-        <ListView Grid.Row="1" Grid.Column="2" x:Name="RowData"
-                  VirtualizingPanel.IsVirtualizing="True"
-                  VirtualizingPanel.VirtualizationMode="Recycling"
-                  ScrollViewer.IsDeferredScrollingEnabled="False"
-                  ItemsSource="{Binding}">
-            <ListView.View>
-                <GridView x:Name="RowGrid"/>
-            </ListView.View>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="{x:Type ListViewItem}">
-                    <Setter Property="BorderBrush" Value="DarkGray"/>
-                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                </Style>
-            </ListView.ItemContainerStyle>
-        </ListView>
-        <StatusBar Grid.Row="2" Grid.ColumnSpan="3">
-            <TextBlock x:Name="StatusText"/>
-        </StatusBar>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.ColumnSpan="3" Orientation="Horizontal">
+                <StackPanel.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Margin" Value="2"/>
+                        <Setter Property="Padding" Value="5,0,5,0"/>
+                    </Style>
+                    <Style TargetType="ToggleButton">
+                        <Setter Property="Margin" Value="2"/>
+                        <Setter Property="Padding" Value="5,0,5,0"/>
+                    </Style>
+                    <Style TargetType="ComboBox">
+                        <Setter Property="Margin" Value="2"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    </Style>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Padding" Value="10,0,10,0"/>
+                    </Style>
+                </StackPanel.Resources>
+                <Button Click="Open_Click">Open</Button>
+                <Button Click="About_Click">About</Button>
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+                <Label>Index: </Label>
+                <ComboBox x:Name="IndexSelector">
+                    <ComboBoxItem IsSelected="True" FontWeight="Bold" x:Name="NoIndex">(primary key)</ComboBoxItem>
+                </ComboBox>
+                <Button Click="SetIndex_Click">Set</Button>
+                <ToggleButton Click="IndexInfo_Click" x:Name="IndexInfoToggle">View Index Info</ToggleButton>
+            </StackPanel>
+            <ListView Grid.Row="1" x:Name="TableList"
+                      ItemsSource="{Binding}" />
+            <GridSplitter Grid.Row="1" Grid.Column="1"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Stretch"
+                          ShowsPreview="True"
+                          Width="5" />
+            <ListView Grid.Row="1" Grid.Column="2" x:Name="RowData"
+                      VirtualizingPanel.IsVirtualizing="True"
+                      VirtualizingPanel.VirtualizationMode="Recycling"
+                      ScrollViewer.IsDeferredScrollingEnabled="False"
+                      ItemsSource="{Binding}">
+                <ListView.View>
+                    <GridView x:Name="RowGrid"/>
+                </ListView.View>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="BorderBrush" Value="DarkGray"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+            <StatusBar Grid.Row="2" Grid.ColumnSpan="3">
+                <TextBlock x:Name="StatusText"/>
+            </StatusBar>
+        </Grid>
+        <Grid Visibility="Collapsed" x:Name="LoadingScreen">
+            <Grid.Background>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlColorKey}}" Opacity="0.7"/>
+            </Grid.Background>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="1"
+                       FontSize="25"
+                       HorizontalAlignment="Center">
+                Loading Database...
+            </TextBlock>
+        </Grid>
     </Grid>
 </Window>

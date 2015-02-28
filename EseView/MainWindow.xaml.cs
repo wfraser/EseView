@@ -32,6 +32,20 @@ namespace EseView
             TableList.SelectionChanged += TableList_SelectionChanged;
 
             StatusText.Text = "No database loaded.";
+
+            var args = Environment.GetCommandLineArgs();
+            if (args.Length == 2)
+            {
+                OpenDatabase(args[1]);
+            }
+            else if (args.Length > 1)
+            {
+                MessageBox.Show("Invalid command line arguments.\n"
+                    + "usage: EseView.exe [database filename]",
+                    "Invalid command line arguments",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
         void UpdateIndexList()
@@ -139,21 +153,39 @@ namespace EseView
 
             if (result == true)
             {
-                m_filename = dialog.FileName;
-                m_viewModel.OpenDatabase(dialog.FileName);
+                OpenDatabase(dialog.FileName);
+            }
+        }
+
+        private async void OpenDatabase(string fileName)
+        {
+            try
+            {
+                LoadingScreen.Visibility = Visibility.Visible;
+
+                m_filename = fileName;
+                await m_viewModel.OpenDatabaseAsync(fileName);
 
                 TableList.DataContext = m_viewModel.Tables;
                 TableList.SelectedIndex = -1;
+
+                Title = "EseView: " + m_filename;
+                UpdateStatusText(null);
+
+                m_selectedTable = null;
+                m_selectedIndex = null;
+                IndexInfoToggle.IsChecked = false;
+
+                UpdateIndexList();
             }
-
-            Title = "EseView: " + m_filename;
-            UpdateStatusText(null);
-
-            m_selectedTable = null;
-            m_selectedIndex = null;
-            IndexInfoToggle.IsChecked = false;
-
-            UpdateIndexList();
+            catch(Exception ex)
+            {
+                MessageBox.Show("Error loading database: " + ex.Message, "Error loading database", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                LoadingScreen.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void UpdateStatusText(string tableName)

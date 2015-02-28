@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EseView
 {
@@ -12,20 +13,18 @@ namespace EseView
             m_indexes = new Dictionary<string, List<string>>();
         }
 
-        public MainViewModel(string filename)
+        public Task OpenDatabaseAsync(string filename)
         {
-            OpenDatabase(filename);
-        }
-
-        public void OpenDatabase(string filename)
-        {
-            if (m_db != null)
+            return Task.Run(() =>
             {
-                m_db.Close();
-            }
+                if (m_db != null)
+                {
+                    m_db.Close();
+                }
 
-            m_db = new DBReader(filename);
-            m_tables = new Lazy<List<string>>(() => new List<string>(m_db.Tables));
+                m_db = new DBReader(filename);
+                m_tables = new Lazy<List<string>>(() => new List<string>(m_db.Tables));
+            });
         }
 
         public List<string> Tables
