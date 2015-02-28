@@ -68,11 +68,21 @@ namespace EseView
 
         void UpdateColumnDefinitions(IEnumerable<KeyValuePair<string, Type>> columnNamesAndTypes)
         {
-            if (TableList.SelectedIndex == -1)
+            if (m_selectedTable == null)
             {
                 RowGrid.Columns.Clear();
                 RowData.DataContext = null;
                 return;
+            }
+
+            IEnumerable<DBRow> indexInfo;
+            if (m_selectedIndex != null)
+            {
+                indexInfo = m_viewModel.GetIndexInfo(m_selectedTable, m_selectedIndex);
+            }
+            else
+            {
+                indexInfo = new List<DBRow>(); // empty
             }
 
             RowGrid.Columns.Clear();
@@ -82,21 +92,43 @@ namespace EseView
                 var cellBinding = new Binding();
                 cellBinding.Converter = new DBRowValueConverter();
                 cellBinding.ConverterParameter = colspec.Key;
+                cellBinding.Mode = BindingMode.OneTime;
 
-                // TODO: use different cell element types based on the underlying data type.
-                var cellFactory = new FrameworkElementFactory(typeof(ContentControl));
-                cellFactory.SetBinding(ContentControl.ContentProperty, cellBinding);
+                FrameworkElementFactory cellFactory;
+                if (colspec.Value == typeof(bool?))
+                {
+                    cellFactory = new FrameworkElementFactory(typeof(CheckBox));
+                    cellFactory.SetBinding(CheckBox.IsCheckedProperty, cellBinding);
+
+                    // HACK: Don't allow changes, but don't gray it out either like IsEnabled does.
+                    cellFactory.SetValue(CheckBox.IsHitTestVisibleProperty, false);
+                    cellFactory.SetValue(CheckBox.FocusableProperty, false);
+                }
+                else
+                {
+                    cellFactory = new FrameworkElementFactory(typeof(ContentControl));
+                    cellFactory.SetBinding(ContentControl.ContentProperty, cellBinding);
+                }
 
                 var template = new DataTemplate();
                 template.VisualTree = cellFactory;
 
-                var gridColumn2 = new GridViewColumn();
-                gridColumn2.Header = colspec.Key;
-                gridColumn2.CellTemplate = template;
+                var gridColumn = new GridViewColumn();
+                gridColumn.Header = colspec.Key;
+                gridColumn.CellTemplate = template;
 
-                // TODO: bold the column header if it's part of the current index
+                // Bold the column header if it's part of the current index.
+                if (indexInfo.Any(o => o.GetValue("ColumnName").Equals(colspec.Key)))
+                {
+                    var style = new Style(typeof(GridViewColumnHeader));
+                    style.Setters.Add(new Setter(GridViewColumnHeader.FontWeightProperty, FontWeights.Bold));
+                    gridColumn.HeaderContainerStyle = style;
 
-                RowGrid.Columns.Add(gridColumn2);
+                    // Set the column cells to bold as well.
+                    cellFactory.SetValue(ContentControl.FontWeightProperty, FontWeights.Bold);
+                }
+
+                RowGrid.Columns.Add(gridColumn);
             }
         }
 
@@ -170,6 +202,7 @@ namespace EseView
 
             if (!IndexInfoToggle.IsChecked.GetValueOrDefault(false))
             {
+                UpdateColumnDefinitions(m_viewModel.GetColumnNamesAndTypes(m_selectedTable));
                 RowData.DataContext = m_viewModel.VirtualRows(m_selectedTable, m_selectedIndex);
             }
             else
