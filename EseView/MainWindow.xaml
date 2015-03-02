@@ -4,6 +4,36 @@
         xmlns:local="clr-namespace:EseView"
         Title="EseView" Height="350" Width="525"
         x:Name="MainFrame">
+    <Window.Resources>
+        <!--
+            This style can be applied to a TextBox to make it look like a TextBlock, but be selectable and allow copying of its text.
+            Based on a post at http://stackoverflow.com/a/9231349 by "juanjo.arana".
+        -->
+        <Style x:Key="SelectableTextBlock" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="-2,0,-2,0"/>
+            <Style.Triggers>
+                <!-- Revert to being an actual TextBlock when not focused or MouseOver'd. -->
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="False"/>
+                        <Condition Property="IsFocused" Value="False"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type TextBox}">
+                                <!-- Add other {TemplateBinding} properties to this if they're ever used. -->
+                                <TextBlock Text="{TemplateBinding Text}"
+                                           Padding="0,0,0,0"/>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -36,13 +66,22 @@
                 </StackPanel.Resources>
                 <Button Click="Open_Click">Open</Button>
                 <Button Click="About_Click">About</Button>
+
                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+
                 <Label>Index: </Label>
                 <ComboBox x:Name="IndexSelector">
                     <ComboBoxItem IsSelected="True" FontWeight="Bold" x:Name="NoIndex">(primary key)</ComboBoxItem>
                 </ComboBox>
                 <Button Click="SetIndex_Click">Set</Button>
                 <ToggleButton Click="IndexInfo_Click" x:Name="IndexInfoToggle">View Index Info</ToggleButton>
+
+                <!-- TODO: enable this functionality. Hidden for now. -->
+                <Grid Visibility="Collapsed">
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+
+                    <ToggleButton Click="ColumnInfo_Click" x:Name="ColumnInfoToggle">View Column Info</ToggleButton>
+                </Grid>
             </StackPanel>
             <ListView Grid.Row="1" x:Name="TableList"
                       ItemsSource="{Binding}" />

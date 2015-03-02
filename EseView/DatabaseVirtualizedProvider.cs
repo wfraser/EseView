@@ -10,7 +10,7 @@ namespace EseView
             m_db = db;
             m_tableName = tableName;
             m_indexName = indexName;
-            m_count = new Lazy<int>(() => db.GetRowCount(tableName));
+            m_count = new Lazy<int>(() => db.GetRowCount(tableName, indexName));
 
             m_columnIndexByName = new Dictionary<string, int>();
 

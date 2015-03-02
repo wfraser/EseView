@@ -11,6 +11,17 @@ namespace EseView
             m_data = data;
         }
 
+        public DBRow(IEnumerable<KeyValuePair<string, object>> data)
+        {
+            m_data = new List<object>();
+            m_columnIndexByName = new Dictionary<string,int>();
+            foreach (var pair in data)
+            {
+                m_data.Add(pair.Value);
+                m_columnIndexByName.Add(pair.Key, m_columnIndexByName.Count);
+            }
+        }
+
         public object GetValue(string columnName)
         {
             int index = m_columnIndexByName[columnName];

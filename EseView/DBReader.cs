@@ -67,10 +67,20 @@ namespace EseView
             }
         }
 
-        public int GetRowCount(string tableName)
+        public int GetRowCount(string tableName, string indexName = null)
         {
+            if (string.IsNullOrEmpty(tableName))
+                return 0;
+
             using (var table = new Table(m_sesid, m_dbid, tableName, OpenTableGrbit.ReadOnly))
             {
+                if (!string.IsNullOrEmpty(indexName))
+                {
+                    // This is needed because an index can be over a nullable column and exclude
+                    // the nulls, resulting in fewer records than when not using the index.
+                    Esent.JetSetCurrentIndex2(m_sesid, table, indexName, SetCurrentIndexGrbit.MoveFirst);
+                }
+
                 int numRecords;
                 Esent.JetIndexRecordCount(m_sesid, table, out numRecords, 0);
                 return numRecords;
@@ -173,6 +183,11 @@ namespace EseView
 
         public IEnumerable<KeyValuePair<string, Type>> GetColumnNamesAndTypes(string tableName)
         {
+            if (string.IsNullOrEmpty(tableName))
+            {
+                yield break;
+            }
+
             if (!m_tableDefs.ContainsKey(tableName))
             {
                 LoadTableDef(tableName);

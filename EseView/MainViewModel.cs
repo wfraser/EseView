@@ -60,14 +60,14 @@ namespace EseView
             return new VirtualizedReadOnlyList<DBRow>(new DatabaseVirtualizedProvider(m_db, tableName, indexName));
         }
 
-        public int GetRowCount(string tableName)
+        public int GetRowCount(string tableName, string indexName)
         {
-            return m_db.GetRowCount(tableName);
+            return m_db.GetRowCount(tableName, indexName);
         }
 
         public IEnumerable<KeyValuePair<string, Type>> GetColumnNamesAndTypes(string tableName)
         {
-            if (m_db == null)
+            if (m_db == null || string.IsNullOrEmpty(tableName))
             {
                 return null;
             }

@@ -20,10 +20,20 @@ namespace EseView
         private string m_selectedIndex;
         private string m_selectedTable;
 
+        private enum Mode
+        {
+            Data,
+            IndexInfo,
+            ColumnInfo
+        }
+
+        private Mode m_mode;
+
         public MainWindow()
         {
             m_selectedTable = null;
             m_selectedIndex = null;
+            m_mode = Mode.Data;
 
             m_viewModel = new MainViewModel();
             InitializeComponent();
@@ -67,17 +77,14 @@ namespace EseView
 
         void TableList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            IndexInfoToggle.IsChecked = false;
-
             string tableName = TableList.SelectedItem as string;
             m_selectedTable = tableName;
             m_selectedIndex = null;
 
-            UpdateIndexList();
+            SetMode(Mode.Data);
 
-            UpdateColumnDefinitions(m_viewModel.GetColumnNamesAndTypes(tableName));
-            RowData.DataContext = m_viewModel.VirtualRows(tableName, m_selectedIndex);
-            UpdateStatusText(tableName);
+            UpdateIndexList();
+            UpdateStatusText(m_selectedTable, m_selectedIndex);
         }
 
         void UpdateColumnDefinitions(IEnumerable<KeyValuePair<string, Type>> columnNamesAndTypes)
@@ -120,8 +127,16 @@ namespace EseView
                 }
                 else
                 {
-                    cellFactory = new FrameworkElementFactory(typeof(ContentControl));
-                    cellFactory.SetBinding(ContentControl.ContentProperty, cellBinding);
+                    //cellFactory = new FrameworkElementFactory(typeof(ContentControl));
+                    //cellFactory.SetBinding(ContentControl.ContentProperty, cellBinding);
+                    
+                    //cellFactory = new FrameworkElementFactory(typeof(TextBlock));
+                    //cellFactory.SetBinding(TextBlock.TextProperty, cellBinding);
+
+                    cellFactory = new FrameworkElementFactory(typeof(TextBox));
+                    cellFactory.SetBinding(TextBox.TextProperty, cellBinding);
+                    cellFactory.SetValue(TextBox.IsReadOnlyProperty, true);
+                    cellFactory.SetValue(TextBox.StyleProperty, FindResource("SelectableTextBlock"));
                 }
 
                 var template = new DataTemplate();
@@ -170,13 +185,14 @@ namespace EseView
                 TableList.SelectedIndex = -1;
 
                 Title = "EseView: " + m_filename;
-                UpdateStatusText(null);
+                UpdateStatusText(null, null);
 
                 m_selectedTable = null;
                 m_selectedIndex = null;
                 IndexInfoToggle.IsChecked = false;
 
                 UpdateIndexList();
+                SetMode(Mode.Data);
             }
             catch(Exception ex)
             {
@@ -188,12 +204,12 @@ namespace EseView
             }
         }
 
-        private void UpdateStatusText(string tableName)
+        private void UpdateStatusText(string tableName, string indexName)
         {
             string text = string.Format("{0} tables.", m_viewModel.Tables.Count);
             if (!string.IsNullOrEmpty(tableName))
             {
-                text += string.Format(" {0} rows in current table.", m_viewModel.GetRowCount(tableName));
+                text += string.Format(" {0} rows in current table.", m_viewModel.GetRowCount(tableName, indexName));
             }
             StatusText.Text = text;
         }
@@ -232,14 +248,12 @@ namespace EseView
                 m_selectedIndex = selected.Content as string;
             }
 
-            if (!IndexInfoToggle.IsChecked.GetValueOrDefault(false))
+            UpdateStatusText(m_selectedTable, m_selectedIndex);
+
+            if (m_mode == Mode.Data || m_mode == Mode.IndexInfo)
             {
-                UpdateColumnDefinitions(m_viewModel.GetColumnNamesAndTypes(m_selectedTable));
-                RowData.DataContext = m_viewModel.VirtualRows(m_selectedTable, m_selectedIndex);
-            }
-            else
-            {
-                ShowIndexInfo();
+                // Update the display
+                SetMode(m_mode);
             }
         }
 
@@ -251,21 +265,67 @@ namespace EseView
                 return;
             }
 
+            if (ColumnInfoToggle.IsChecked.GetValueOrDefault(false))
+            {
+                ColumnInfoToggle.IsChecked = false;
+            }
+
             if (IndexInfoToggle.IsChecked.GetValueOrDefault(false))
             {
-                ShowIndexInfo();
+                SetMode(Mode.IndexInfo);
             }
             else
             {
-                UpdateColumnDefinitions(m_viewModel.GetColumnNamesAndTypes(m_selectedTable));
-                RowData.DataContext = m_viewModel.VirtualRows(m_selectedTable, m_selectedIndex);
+                SetMode(Mode.Data);
             }
         }
 
-        void ShowIndexInfo()
+        private void ColumnInfo_Click(object sender, RoutedEventArgs e)
         {
-            UpdateColumnDefinitions(m_viewModel.GetIndexColumnNamesAndTypes(m_selectedTable, m_selectedIndex));
-            RowData.DataContext = m_viewModel.GetIndexInfo(m_selectedTable, m_selectedIndex);
+            if (m_selectedTable == null)
+            {
+                ColumnInfoToggle.IsChecked = false;
+                return;
+            }
+
+            if (IndexInfoToggle.IsChecked.GetValueOrDefault(false))
+            {
+                IndexInfoToggle.IsChecked = false;
+            }
+
+            if (ColumnInfoToggle.IsChecked.GetValueOrDefault(false))
+            {
+                SetMode(Mode.ColumnInfo);
+            }
+            else
+            {
+                SetMode(Mode.Data);
+            }
+        }
+
+        void SetMode(Mode mode)
+        {
+            m_mode = mode;
+            switch (mode)
+            {
+                case Mode.Data:
+                    IndexInfoToggle.IsChecked = false;
+                    ColumnInfoToggle.IsChecked = false;
+                    UpdateColumnDefinitions(m_viewModel.GetColumnNamesAndTypes(m_selectedTable));
+                    RowData.DataContext = m_viewModel.VirtualRows(m_selectedTable, m_selectedIndex);
+                    break;
+                case Mode.IndexInfo:
+                    IndexInfoToggle.IsChecked = true;
+                    ColumnInfoToggle.IsChecked = false;
+                    UpdateColumnDefinitions(m_viewModel.GetIndexColumnNamesAndTypes(m_selectedTable, m_selectedIndex));
+                    RowData.DataContext = m_viewModel.GetIndexInfo(m_selectedTable, m_selectedIndex);
+                    break;
+                case Mode.ColumnInfo:
+                    IndexInfoToggle.IsChecked = false;
+                    ColumnInfoToggle.IsChecked = true;
+                    //TODO
+                    break;
+            }
         }
     }
 }
