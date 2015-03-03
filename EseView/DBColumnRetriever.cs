@@ -8,11 +8,11 @@ using Esent = Microsoft.Isam.Esent.Interop.Api;
 
 namespace EseView
 {
-    public delegate object ColumnRetriever(JET_SESID sesid, JET_TABLEID table, JET_COLUMNID column);
+    public delegate object DBColumnRetriever(JET_SESID sesid, JET_TABLEID table, JET_COLUMNID column);
 
     public static class ColumnRetrievers
     {
-        private static Dictionary<Type, ColumnRetriever> s_fetchers = new Dictionary<Type, ColumnRetriever>
+        private static Dictionary<Type, DBColumnRetriever> s_fetchers = new Dictionary<Type, DBColumnRetriever>
         {
             { typeof(string),   Esent.RetrieveColumnAsString },
             { typeof(long?),    (s,t,c) => Esent.RetrieveColumnAsInt64(s,t,c) },
@@ -32,7 +32,7 @@ namespace EseView
            
         };
         
-        public static ColumnRetriever ForType(Type t)
+        public static DBColumnRetriever ForType(Type t)
         {
             if (!s_fetchers.ContainsKey(t))
             {

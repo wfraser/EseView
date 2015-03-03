@@ -20,7 +20,7 @@ namespace EseView
         {
             public string Name;
             public Type Type;
-            public ColumnRetriever Retriever;
+            public DBColumnRetriever Retriever;
             public JET_COLUMNID ColumnId;
         }
 
