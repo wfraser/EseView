@@ -18,6 +18,7 @@ Implemented Features
 Planned Features
 ----------------
 * Viewing column specifications
+* Enabling/Disabling columns
 * Searching for values
 
 This program is not supported or endorsed by Microsoft Corporation in any way.
