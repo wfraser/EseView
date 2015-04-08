@@ -53,11 +53,26 @@ namespace EseView
             Esent.JetOpenDatabase(m_sesid, filename, null, out m_dbid, OpenDatabaseGrbit.ReadOnly);
         }
 
+        ~DBReader()
+        {
+            Close();
+        }
+
         public void Close()
         {
-            Esent.JetCloseDatabase(m_sesid, m_dbid, CloseDatabaseGrbit.None);
-            m_sesid.End();
-            m_jetInstance.Close();
+            if (!m_sesid.Equals(JET_SESID.Nil))
+            {
+                if (!m_dbid.Equals(JET_DBID.Nil))
+                {
+                    Esent.JetCloseDatabase(m_sesid, m_dbid, CloseDatabaseGrbit.None);
+                }
+                m_sesid.End();
+            }
+
+            if (!m_jetInstance.Equals(JET_INSTANCE.Nil))
+            {
+                m_jetInstance.Close();
+            }
         }
 
         public IEnumerable<string> Tables
