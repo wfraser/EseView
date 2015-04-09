@@ -29,9 +29,11 @@ namespace EseView
 
         public IEnumerable<DBRow> FetchRange(int startIndex, int count)
         {
+            int i = 0;
             foreach (List<object> row in m_db.GetRows(m_tableName, m_indexName, startIndex, count))
             {
-                yield return new DBRow(m_columnIndexByName, row);
+                yield return new DBRow(m_columnIndexByName, row, startIndex + i);
+                i++;
             }
         }
 

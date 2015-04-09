@@ -62,6 +62,11 @@ namespace EseView
 
         public int IndexOf(T value)
         {
+            // Hack alert: special case for DBRow, which knows its own index.
+            if (typeof(T) == typeof(DBRow))
+                return (value as DBRow).RowIndex;
+
+            // Otherwise, this is expensive to compute. Don't bother.
             return -1;
         }
 

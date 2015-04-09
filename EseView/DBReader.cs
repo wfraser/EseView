@@ -60,7 +60,7 @@ namespace EseView
 
         public void Close()
         {
-            if (!m_sesid.Equals(JET_SESID.Nil))
+            if ((m_sesid != null) && !m_sesid.Equals(JET_SESID.Nil))
             {
                 if (!m_dbid.Equals(JET_DBID.Nil))
                 {
@@ -69,7 +69,7 @@ namespace EseView
                 m_sesid.End();
             }
 
-            if (!m_jetInstance.Equals(JET_INSTANCE.Nil))
+            if ((m_jetInstance != null) && !m_jetInstance.Equals(JET_INSTANCE.Nil))
             {
                 m_jetInstance.Close();
             }
@@ -390,6 +390,7 @@ namespace EseView
 
             Esent.JetMove(m_sesid, indexList.tableid, JET_Move.First, MoveGrbit.None);
 
+            i = 0;
             do
             {
                 var row = new List<object>();
@@ -399,7 +400,7 @@ namespace EseView
                     row.Add(column.Retriever(m_sesid, indexList.tableid, column.ColumnId));
                 }
 
-                yield return new DBRow(columnsByName, row);
+                yield return new DBRow(columnsByName, row, i++);
             }
             while (Esent.TryMoveNext(m_sesid, indexList.tableid));
 

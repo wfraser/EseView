@@ -303,7 +303,7 @@ namespace EseView
             }
         }
 
-        void SetMode(Mode mode)
+        void SetMode(Mode mode, bool virtualizing = true)
         {
             m_mode = mode;
             switch (mode)
@@ -312,7 +312,10 @@ namespace EseView
                     IndexInfoToggle.IsChecked = false;
                     ColumnInfoToggle.IsChecked = false;
                     UpdateColumnDefinitions(m_viewModel.GetColumnNamesAndTypes(m_selectedTable));
-                    RowData.DataContext = m_viewModel.VirtualRows(m_selectedTable, m_selectedIndex);
+                    if (virtualizing)
+                        RowData.DataContext = m_viewModel.VirtualRows(m_selectedTable, m_selectedIndex);
+                    else
+                        RowData.DataContext = m_viewModel.Rows(m_selectedTable, m_selectedIndex);
                     break;
                 case Mode.IndexInfo:
                     IndexInfoToggle.IsChecked = true;
@@ -325,6 +328,78 @@ namespace EseView
                     ColumnInfoToggle.IsChecked = true;
                     //TODO
                     break;
+            }
+        }
+
+        private static T FindVisualChild<T>(DependencyObject obj) where T : DependencyObject
+        {
+            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(obj); i++)
+            {
+                DependencyObject child = System.Windows.Media.VisualTreeHelper.GetChild(obj, i);
+                if (child != null)
+                {
+                    T childT = child as T;
+                    if (childT != null)
+                        return childT;
+                    else
+                    {
+                        T childOfChild = FindVisualChild<T>(child);
+                        if (childOfChild != null)
+                            return childOfChild;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private void Search_Click(object sender, RoutedEventArgs e)
+        {
+            Search();
+        }
+
+        private void Search()
+        {
+            for (int rowIndex = RowData.SelectedIndex + 1; rowIndex < RowData.Items.Count; rowIndex++)
+            {
+                DBRow row = (DBRow)RowData.Items[rowIndex];
+
+                for (int col = 0; col < row.NumColumns; col++)
+                {
+                    object value = row[col];
+                    if (value == null)
+                        continue;
+
+                    string strValue = value.ToString();
+                    if (strValue.Contains(SearchBox.Text))
+                    {
+                        ListViewItem viewItem = (ListViewItem)RowData.ItemContainerGenerator.ContainerFromItem(row);
+                        if (viewItem == null)
+                        {
+                            RowData.ScrollIntoView(row);
+                            viewItem = (ListViewItem)RowData.ItemContainerGenerator.ContainerFromItem(row);
+                        }
+
+                        if (viewItem != null)
+                        {
+                            RowData.SelectedItem = null;
+                            viewItem.Focus();
+                            viewItem.IsSelected = true;
+                        }
+                        
+                        return;
+                    }
+                }
+            }
+
+            MessageBox.Show("No match.");
+        }
+
+        private void SearchBox_PreviewKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                e.Handled = true;
+                Search();
             }
         }
     }

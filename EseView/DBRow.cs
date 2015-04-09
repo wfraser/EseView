@@ -5,13 +5,14 @@ namespace EseView
 {
     public class DBRow
     {
-        public DBRow(Dictionary<string, int> columnIndexByName, List<object> data)
+        public DBRow(Dictionary<string, int> columnIndexByName, List<object> data, int rowIndex)
         {
             m_columnIndexByName = columnIndexByName;
             m_data = data;
+            m_rowIndex = rowIndex;
         }
 
-        public DBRow(IEnumerable<KeyValuePair<string, object>> data)
+        public DBRow(IEnumerable<KeyValuePair<string, object>> data, int rowIndex)
         {
             m_data = new List<object>();
             m_columnIndexByName = new Dictionary<string,int>();
@@ -20,6 +21,7 @@ namespace EseView
                 m_data.Add(pair.Value);
                 m_columnIndexByName.Add(pair.Key, m_columnIndexByName.Count);
             }
+            m_rowIndex = rowIndex;
         }
 
         public object GetValue(string columnName)
@@ -36,8 +38,25 @@ namespace EseView
             }
         }
 
+        public int NumColumns
+        {
+            get
+            {
+                return m_data.Count;
+            }
+        }
+
+        public int RowIndex
+        {
+            get
+            {
+                return m_rowIndex;
+            }
+        }
+
         private Dictionary<string, int> m_columnIndexByName;
         private List<object> m_data;
+        private int m_rowIndex;
     }
 
     public class DBRowValueConverter : System.Windows.Data.IValueConverter

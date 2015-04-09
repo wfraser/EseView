@@ -45,12 +45,13 @@ namespace EseView
                 int i = 0;
                 foreach (var col in m_db.GetColumnNamesAndTypes(tableName))
                 {
-                    columnIndexByName.Add(col.Key, i);
+                    columnIndexByName.Add(col.Key, i++);
                 }
 
+                i = 0;
                 foreach (List<object> row in m_db.GetRows(tableName, indexName))
                 {
-                    yield return new DBRow(columnIndexByName, row);
+                    yield return new DBRow(columnIndexByName, row, i++);
                 }
             }
         }
