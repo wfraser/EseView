@@ -382,7 +382,6 @@ namespace EseView
                         if (viewItem != null)
                         {
                             RowData.SelectedItem = null;
-                            viewItem.Focus();
                             viewItem.IsSelected = true;
                         }
                         
