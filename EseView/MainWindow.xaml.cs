@@ -338,6 +338,12 @@ namespace EseView
 
         private void Search()
         {
+            string searchTerm = SearchBox.Text;
+            if (!SearchRegex.IsChecked.GetValueOrDefault(false) && !SearchCaseSensitive.IsChecked.GetValueOrDefault(false))
+            {
+                searchTerm = searchTerm.ToLower();
+            }
+
             for (int rowIndex = RowData.SelectedIndex + 1; rowIndex < RowData.Items.Count; rowIndex++)
             {
                 DBRow row = (DBRow)RowData.Items[rowIndex];
@@ -349,7 +355,16 @@ namespace EseView
                         continue;
 
                     string strValue = value.ToString();
-                    if (strValue.Contains(SearchBox.Text))
+
+                    if (SearchRegex.IsChecked.GetValueOrDefault(false)
+                        ? System.Text.RegularExpressions.Regex.Match(
+                            strValue,
+                            searchTerm,
+                            SearchCaseSensitive.IsChecked.GetValueOrDefault(false)
+                                ? System.Text.RegularExpressions.RegexOptions.None
+                                : System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                            ).Success
+                        : strValue.Contains(searchTerm))
                     {
                         ListViewItem viewItem = (ListViewItem)RowData.ItemContainerGenerator.ContainerFromItem(row);
                         if (viewItem == null)
