@@ -331,27 +331,6 @@ namespace EseView
             }
         }
 
-        private static T FindVisualChild<T>(DependencyObject obj) where T : DependencyObject
-        {
-            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(obj); i++)
-            {
-                DependencyObject child = System.Windows.Media.VisualTreeHelper.GetChild(obj, i);
-                if (child != null)
-                {
-                    T childT = child as T;
-                    if (childT != null)
-                        return childT;
-                    else
-                    {
-                        T childOfChild = FindVisualChild<T>(child);
-                        if (childOfChild != null)
-                            return childOfChild;
-                    }
-                }
-            }
-            return null;
-        }
-
         private void Search_Click(object sender, RoutedEventArgs e)
         {
             Search();
