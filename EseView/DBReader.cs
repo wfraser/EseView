@@ -7,7 +7,7 @@ using Esent = Microsoft.Isam.Esent.Interop.Api;
 
 namespace EseView
 {
-    public class DBReader
+    public class DBReader : IDisposable
     {
         private Instance m_jetInstance;
         private Session m_sesid;
@@ -29,11 +29,15 @@ namespace EseView
             m_filename = filename;
             m_tableDefs = new Dictionary<string, IEnumerable<ColSpec>>();
             m_indexDefs = new Dictionary<Tuple<string, string>, IEnumerable<ColSpec>>();
+            m_dbid = JET_DBID.Nil;
+        }
 
+        public void Init(bool recoveryEnabled)
+        {
             int pageSize;
-            Esent.JetGetDatabaseFileInfo(filename, out pageSize, JET_DbInfo.PageSize);
+            Esent.JetGetDatabaseFileInfo(m_filename, out pageSize, JET_DbInfo.PageSize);
 
-            string dir = Path.GetDirectoryName(filename) + Path.DirectorySeparatorChar;
+            string dir = Path.GetDirectoryName(m_filename) + Path.DirectorySeparatorChar;
             Esent.JetSetSystemParameter(JET_INSTANCE.Nil, JET_SESID.Nil, JET_param.DatabasePageSize, pageSize, null);
             Esent.JetSetSystemParameter(JET_INSTANCE.Nil, JET_SESID.Nil, JET_param.LogFilePath, 0, dir);
             Esent.JetSetSystemParameter(JET_INSTANCE.Nil, JET_SESID.Nil, JET_param.SystemPath, 0, dir);
@@ -41,19 +45,24 @@ namespace EseView
             // Put the temp DB in our working directory.
             Esent.JetSetSystemParameter(JET_INSTANCE.Nil, JET_SESID.Nil, JET_param.TempPath, 0, Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar);
 
-            // Recovery is disabled so that we don't touch the database's log files.
-            Esent.JetSetSystemParameter(JET_INSTANCE.Nil, JET_SESID.Nil, JET_param.Recovery, 0, null);
+            // Set recovery option.
+            Esent.JetSetSystemParameter(JET_INSTANCE.Nil, JET_SESID.Nil, JET_param.Recovery, 0, recoveryEnabled ? "On" : "Off");
 
             m_jetInstance = new Instance("ESEVIEW");
             m_jetInstance.Init();
 
             m_sesid = new Session(m_jetInstance);
 
-            Esent.JetAttachDatabase(m_sesid, filename, AttachDatabaseGrbit.ReadOnly);
-            Esent.JetOpenDatabase(m_sesid, filename, null, out m_dbid, OpenDatabaseGrbit.ReadOnly);
+            Esent.JetAttachDatabase(m_sesid, m_filename, recoveryEnabled ? AttachDatabaseGrbit.None : AttachDatabaseGrbit.ReadOnly);
+            Esent.JetOpenDatabase(m_sesid, m_filename, null, out m_dbid, OpenDatabaseGrbit.ReadOnly);
         }
 
         ~DBReader()
+        {
+            Close();
+        }
+
+        public void Dispose()
         {
             Close();
         }

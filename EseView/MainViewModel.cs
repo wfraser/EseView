@@ -13,7 +13,7 @@ namespace EseView
             m_indexes = new Dictionary<string, List<string>>();
         }
 
-        public Task OpenDatabaseAsync(string filename)
+        public Task OpenDatabaseAsync(string filename, bool recoveryEnabled = false)
         {
             return Task.Run(() =>
             {
@@ -23,6 +23,7 @@ namespace EseView
                 }
 
                 m_db = new DBReader(filename);
+                m_db.Init(recoveryEnabled);
                 m_tables = new Lazy<List<string>>(() => new List<string>(m_db.Tables));
             });
         }

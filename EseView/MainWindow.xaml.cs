@@ -172,14 +172,16 @@ namespace EseView
             }
         }
 
-        private async void OpenDatabase(string fileName)
+        private async void OpenDatabase(string fileName, bool recoveryEnabled = false)
         {
+            bool retryWithRecovery = false;
+
             try
             {
                 LoadingScreen.Visibility = Visibility.Visible;
 
                 m_filename = fileName;
-                await m_viewModel.OpenDatabaseAsync(fileName);
+                await m_viewModel.OpenDatabaseAsync(fileName, recoveryEnabled);
 
                 TableList.DataContext = m_viewModel.Tables;
                 TableList.SelectedIndex = -1;
@@ -194,6 +196,19 @@ namespace EseView
                 UpdateIndexList();
                 SetMode(Mode.Data);
             }
+            catch (Microsoft.Isam.Esent.Interop.EsentDatabaseDirtyShutdownException)
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    "The database was not shut down cleanly. Would you like to recover it?",
+                    "Error loading database",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Error);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    retryWithRecovery = true;
+                }
+            }
             catch(Exception ex)
             {
                 MessageBox.Show("Error loading database: " + ex.Message, "Error loading database", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -201,6 +216,11 @@ namespace EseView
             finally
             {
                 LoadingScreen.Visibility = Visibility.Collapsed;
+            }
+
+            if (retryWithRecovery)
+            {
+                OpenDatabase(fileName, true);
             }
         }
 
@@ -378,7 +398,7 @@ namespace EseView
                             RowData.SelectedItem = null;
                             viewItem.IsSelected = true;
                         }
-                        
+
                         return;
                     }
                 }
