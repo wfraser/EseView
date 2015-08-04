@@ -358,8 +358,11 @@ namespace EseView
 
         private void Search()
         {
+            bool caseSensitive = SearchCaseSensitive.IsChecked.GetValueOrDefault(false);
+            bool isRegex = SearchRegex.IsChecked.GetValueOrDefault(false);
+
             string searchTerm = SearchBox.Text;
-            if (!SearchRegex.IsChecked.GetValueOrDefault(false) && !SearchCaseSensitive.IsChecked.GetValueOrDefault(false))
+            if (!isRegex && !caseSensitive)
             {
                 searchTerm = searchTerm.ToLower();
             }
@@ -376,15 +379,29 @@ namespace EseView
 
                     string strValue = value.ToString();
 
-                    if (SearchRegex.IsChecked.GetValueOrDefault(false)
-                        ? System.Text.RegularExpressions.Regex.Match(
+                    bool match = false;
+                    if (SearchRegex.IsChecked.GetValueOrDefault(false))
+                    {
+                        match = System.Text.RegularExpressions.Regex.Match(
                             strValue,
                             searchTerm,
-                            SearchCaseSensitive.IsChecked.GetValueOrDefault(false)
+                            caseSensitive
                                 ? System.Text.RegularExpressions.RegexOptions.None
                                 : System.Text.RegularExpressions.RegexOptions.IgnoreCase
-                            ).Success
-                        : strValue.Contains(searchTerm))
+                            ).Success;
+                    }
+                    else
+                    {
+                        string haystack = strValue;
+                        if (!caseSensitive)
+                        {
+                            haystack = haystack.ToLower();
+                        }
+
+                        match = haystack.Contains(searchTerm);
+                    }
+
+                    if (match)
                     {
                         ListViewItem viewItem = (ListViewItem)RowData.ItemContainerGenerator.ContainerFromItem(row);
                         if (viewItem == null)
