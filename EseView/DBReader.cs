@@ -69,7 +69,7 @@ namespace EseView
 
         public void Close()
         {
-            if ((m_sesid != null) && !m_sesid.Equals(JET_SESID.Nil))
+            if ((m_sesid != null) && (m_sesid.JetSesid != JET_SESID.Nil))
             {
                 if (!m_dbid.Equals(JET_DBID.Nil))
                 {
