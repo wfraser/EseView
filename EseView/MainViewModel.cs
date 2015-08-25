@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace EseView
 {
-    class MainViewModel
+    public class MainViewModel
     {
         public MainViewModel()
         {
@@ -102,6 +102,42 @@ namespace EseView
                 return null;
             }
             return m_db.GetIndexColumnNamesAndTypes(tableName, indexName);
+        }
+
+        public void DumpTable(string tableName, System.IO.TextWriter output)
+        {
+            string indexName = null;
+            int slashIndex = tableName.IndexOf('/');
+            if (slashIndex != -1)
+            {
+                indexName = tableName.Substring(slashIndex + 1);
+                tableName = tableName.Substring(0, slashIndex);
+            }
+
+            var columns = new List<KeyValuePair<string, Type>>(m_db.GetColumnNamesAndTypes(tableName));
+
+            output.WriteLine("<Table Name=\"{0}\" RowCount=\"{1}\">", tableName, m_db.GetRowCount(tableName, indexName));
+
+            foreach (var row in m_db.GetRows(tableName, indexName))
+            {
+                output.WriteLine("\t<Row>");
+                for (int i = 0; i < columns.Count; i++)
+                {
+                    output.Write("\t\t<Column Name=\"{0}\"", columns[i].Key);
+                    if (row[i] != null)
+                    {
+                        output.WriteLine();
+                        output.WriteLine("\t\t\tValue=\"{0}\"/>", row[i].ToString());
+                    }
+                    else
+                    {
+                        output.WriteLine("/>");
+                    }
+                }
+                output.WriteLine("\t</Row>");
+            }
+
+            output.WriteLine("</Table>");
         }
 
         private DBReader m_db;

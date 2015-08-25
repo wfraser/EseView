@@ -251,7 +251,18 @@ namespace EseView
 
                     foreach (var column in m_tableDefs[tableName])
                     {
-                        value = column.Retriever(m_sesid, table, column.ColumnId);
+                        try
+                        {
+                            value = column.Retriever(m_sesid, table, column.ColumnId);
+                        }
+                        catch (Microsoft.Isam.Esent.Interop.EsentNoCurrentRecordException)
+                        {
+                            // If we get this on row 0, it means there are no rows.
+                            if (rowNumber == 0)
+                                yield break;
+                            else
+                                throw;
+                        }
                         values.Add(value);
                     }
 

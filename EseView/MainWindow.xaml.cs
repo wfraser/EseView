@@ -432,5 +432,29 @@ namespace EseView
                 Search();
             }
         }
+
+        private void Dump_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(m_selectedTable))
+                return;
+
+            var dialog = new Microsoft.Win32.SaveFileDialog();
+            dialog.FileName = "db.xml";
+            dialog.DefaultExt = "xml";
+            dialog.Filter = "XML (*.xml)|*.xml|All Files (*.*)|*.*";
+            dialog.OverwritePrompt = false;
+            bool? result = dialog.ShowDialog();
+
+            if (result.HasValue && result.Value)
+            {
+                using (var writer = new System.IO.StreamWriter(dialog.FileName, true, System.Text.Encoding.UTF8))
+                {
+                    if (result.HasValue && result.Value)
+                    {
+                        m_viewModel.DumpTable(m_selectedTable, writer);
+                    }
+                }
+            }
+        }
     }
 }
