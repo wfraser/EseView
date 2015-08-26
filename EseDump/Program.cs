@@ -13,7 +13,7 @@ namespace EseDump
             Console.WriteLine("usage: EseDump.exe [/recover] <database path> [<table name>[/<index name>] [...]]");
         }
 
-        static async Task Run(IEnumerable<string> args)
+        static async Task<int> Run(IEnumerable<string> args)
         {
             var vm = new EseView.MainViewModel();
             bool recover = false;
@@ -21,7 +21,7 @@ namespace EseDump
             string dbPath = args.First();
             args = args.Skip(1);
 
-            if (args.First() == "/recover")
+            if (args.FirstOrDefault() == "/recover")
             {
                 recover = true;
                 args = args.Skip(1);
@@ -36,25 +36,33 @@ namespace EseDump
                 Console.WriteLine("The database was not shut down cleanly.");
                 Console.WriteLine("Use the /recover flag to enable recovery.");
                 Usage();
-                Environment.Exit(-1);
+                return -1;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error loading database: " + ex.Message);
-                Environment.Exit(-2);
+                return -2;
             }
 
-            foreach (string tableName in args)
+            List<string> tables = args.ToList();
+            if (tables.Count == 0)
+            {
+                tables = vm.Tables;
+            }
+
+            foreach (string tableName in tables)
             {
                 vm.DumpTable(tableName, Console.Out);
             }
+
+            return 0;
         }
 
         static void Main(string[] args)
         {
-            if (args.Length > 1)
+            if (args.Length >= 1)
             {
-                Run(args).Wait();
+                Environment.Exit(Run(args).Result);
             }
             else
             {
