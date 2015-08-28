@@ -242,7 +242,10 @@ namespace EseView
                 + "Note: this is not a Microsoft product;\n"
                 + "         this is supported in my own free time.\n"
                 + "\n"
-                + "http://github.com/wfraser/EseView",
+                + "https://github.com/wfraser/EseView\n"
+                + "\n"
+                + "Version " + System.Reflection.Assembly.GetEntryAssembly().GetName().Version
+                ,
                 "About EseView", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

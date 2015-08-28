@@ -10,7 +10,9 @@ namespace EseDump
     {
         static void Usage()
         {
-            Console.WriteLine("usage: EseDump.exe [/recover] <database path> [<table name>[/<index name>] [...]]");
+            var assembly = System.Reflection.Assembly.GetEntryAssembly().GetName();
+            Console.WriteLine("{0} version {1}", assembly.Name, assembly.Version);
+            Console.WriteLine("usage: {0}.exe [/recover] <database path> [<table name>[/<index name>] [...]]", assembly.Name);
         }
 
         static async Task<int> Run(IEnumerable<string> args)
