@@ -104,40 +104,42 @@ namespace EseView
             return m_db.GetIndexColumnNamesAndTypes(tableName, indexName);
         }
 
-        public void DumpTable(string tableName, System.IO.TextWriter output)
+        public void DumpTable(IEnumerable<string> tableNames, System.IO.Stream output)
         {
-            string indexName = null;
-            int slashIndex = tableName.IndexOf('/');
-            if (slashIndex != -1)
+            XmlDump dump = null;
+            if (output.CanSeek)
             {
-                indexName = tableName.Substring(slashIndex + 1);
-                tableName = tableName.Substring(0, slashIndex);
-            }
-
-            var columns = new List<KeyValuePair<string, Type>>(m_db.GetColumnNamesAndTypes(tableName));
-
-            output.WriteLine("<Table Name=\"{0}\" RowCount=\"{1}\">", tableName, m_db.GetRowCount(tableName, indexName));
-
-            foreach (var row in m_db.GetRows(tableName, indexName))
-            {
-                output.WriteLine("\t<Row>");
-                for (int i = 0; i < columns.Count; i++)
+                try
                 {
-                    output.Write("\t\t<Column Name=\"{0}\"", columns[i].Key);
-                    if (row[i] != null)
-                    {
-                        output.WriteLine();
-                        output.WriteLine("\t\t\tValue=\"{0}\"/>", row[i].ToString());
-                    }
-                    else
-                    {
-                        output.WriteLine("/>");
-                    }
+                    output.Seek(0, System.IO.SeekOrigin.Begin);
+                    output.Flush();
+                    dump = XmlDump.Deserialize(output);
                 }
-                output.WriteLine("\t</Row>");
+                catch (Exception)
+                {
+                    // ignore
+                }
+                finally
+                {
+                    output.SetLength(0);
+                }
+            }
+            if (dump == null)
+            {
+                dump = new XmlDump();
             }
 
-            output.WriteLine("</Table>");
+            foreach (string tableName in tableNames)
+            {
+                dump.AddTable(m_db, tableName);
+            }
+
+            dump.Serialize(output);
+        }
+
+        public void DumpTable(string tableName, System.IO.Stream output)
+        {
+            DumpTable(new List<string> { tableName }, output);
         }
 
         private DBReader m_db;

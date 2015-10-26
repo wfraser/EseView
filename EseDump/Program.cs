@@ -52,9 +52,9 @@ namespace EseDump
                 tables = vm.Tables;
             }
 
-            foreach (string tableName in tables)
+            using (var output = Console.OpenStandardOutput())
             {
-                vm.DumpTable(tableName, Console.Out);
+                vm.DumpTable(tables, output);
             }
 
             return 0;

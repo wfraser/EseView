@@ -59,6 +59,7 @@
     <Compile Include="DatabaseVirtualizedProvider.cs" />
     <Compile Include="DBColumnRetriever.cs" />
     <Compile Include="VirtualizedReadOnlyList.cs" />
+    <Compile Include="XmlDump.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

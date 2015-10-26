@@ -450,12 +450,9 @@ namespace EseView
 
             if (result.HasValue && result.Value)
             {
-                using (var writer = new System.IO.StreamWriter(dialog.FileName, true, System.Text.Encoding.UTF8))
+                using (var output = new System.IO.FileStream(dialog.FileName, System.IO.FileMode.OpenOrCreate))
                 {
-                    if (result.HasValue && result.Value)
-                    {
-                        m_viewModel.DumpTable(m_selectedTable, writer);
-                    }
+                    m_viewModel.DumpTable(m_selectedTable, output);
                 }
             }
         }
