@@ -93,7 +93,7 @@ namespace EseView
             var settings = new XmlReaderSettings();
 
             // Don't choke on "&#x0;" caused by embedded nulls.
-            //settings.CheckCharacters = false;
+            settings.CheckCharacters = false;
 
             using (var reader = XmlReader.Create(stream, settings))
             {
